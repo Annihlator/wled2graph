@@ -80,12 +80,13 @@ def make_document(doc, args, ip_list, params):
     stylesheet = GlobalInlineStyleSheet(css="""
                                         .bk-Tooltip {
                                         margin: 0;
-                                        padding: 4px 8px;
-                                        border-radius: 6px;
-                                        background-color : black;
+                                        padding: 0px 4px;
+                                        border-radius: 4px;
+                                        background-color : rgba(0,0,0,0.5);
                                         color: white;
                                         font-weight: 600;
                                         font-size: 12pt;
+                                        border-color: transparent;
                                             }
                                         """)
 
