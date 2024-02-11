@@ -12,13 +12,15 @@ _LOGGER = logging.getLogger(__name__)
 
 
 from bokeh.plotting import figure
-from bokeh.models import HoverTool, ColumnDataSource
+from bokeh.models import HoverTool, ColumnDataSource, GlobalInlineStyleSheet
+from bokeh.io import curdoc
 from bokeh.layouts import column
 from bokeh.server.server import Server
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.palettes import Category10
 from bokeh.models import WheelZoomTool, PanTool
+from bokeh.themes import Theme
 
 data_source = {}
 data_lock = Lock()
@@ -75,15 +77,25 @@ def make_document(doc, args, ip_list, params):
     plot.toolbar.active_drag = x_pan
     doc.theme = "dark_minimal"
 
+    stylesheet = GlobalInlineStyleSheet(css="""
+                                        .bk-Tooltip {
+                                        margin: 0;
+                                        padding: 4px 8px;
+                                        border-radius: 6px;
+                                        background-color : black;
+                                        color: white;
+                                        font-weight: 600;
+                                        font-size: 12pt;
+                                            }
+                                        """)
+
     custom_tooltip = """
-        <div style="background: black; margin: -10px; padding: 4px; border-radius: 10px; border: 1px solid white; font-weight: 600; font-size: 14px;">
-            <div style="color: white;">fps: @y</div>
-        </div>
+        fps: @y
     """
 
     hover = HoverTool(tooltips=custom_tooltip)
     plot.add_tools(hover)
-
+    
     def update():
         with data_lock:
             for ip in data_source.keys():
@@ -107,7 +119,7 @@ def make_document(doc, args, ip_list, params):
                     source_dict[ip].stream(new_data, rollover=args.rollover)
 
     doc.add_periodic_callback(update, args.period * 1000)
-    doc.add_root(column(plot,sizing_mode="stretch_both"))
+    doc.add_root(column(plot,sizing_mode="stretch_both",stylesheets=[stylesheet]))
 
 
 def run_bokeh_app(args, ip_list, params):
