@@ -10,6 +10,7 @@ import threading
 
 _LOGGER = logging.getLogger(__name__)
 
+
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.layouts import column
@@ -53,15 +54,17 @@ def make_document(doc, args, ip_list, params):
     source_dict = {}
     param = params[0]
     plot = figure(title=f"Real-time update for {param}",
-                  x_axis_label="time (s)", y_axis_label=f"{param}", width=1500,
-                  height=500)
+                  x_axis_label="time (s)", y_axis_label=f"{param}", width=1920,
+                  height=1080)
 
     for index, ip in enumerate(data_source.keys()):
         source_dict[ip] = ColumnDataSource(data=dict(x=[], y=[]))
         full_name = f"{ip}: {data_source[ip]['name']}"
         plot.line("x", "y", source=source_dict[ip], name=full_name, color=palette[index % len(palette)], legend_label=full_name)
 
-    plot.legend.location = "top_left"
+#    plot.legend.location = "top_left"
+    plot.legend.orientation = "horizontal"
+    plot.add_layout(plot.legend[0], "below")
     plot.legend.click_policy = "hide"
 
     xwheel_zoom = WheelZoomTool(dimensions="width")
@@ -73,8 +76,7 @@ def make_document(doc, args, ip_list, params):
     doc.theme = "dark_minimal"
 
     custom_tooltip = """
-        <div style="background: black; margin:-10px; padding: 10px; border-radius: 10px; border: 1px solid white; font-weight: 600; font-size: 14px;">
-            <div style="color: white;">key: $name</div>
+        <div style="background: black; margin: -10px; padding: 4px; border-radius: 10px; border: 1px solid white; font-weight: 600; font-size: 14px;">
             <div style="color: white;">fps: @y</div>
         </div>
     """
@@ -105,7 +107,7 @@ def make_document(doc, args, ip_list, params):
                     source_dict[ip].stream(new_data, rollover=args.rollover)
 
     doc.add_periodic_callback(update, args.period * 1000)
-    doc.add_root(column(plot))
+    doc.add_root(column(plot,sizing_mode="stretch_both"))
 
 
 def run_bokeh_app(args, ip_list, params):

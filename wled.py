@@ -17,5 +17,6 @@ def get_name(ip):
     response.raise_for_status()
     resp_json = response.json()
 #    _LOGGER.info(f"response is {json.dumps(resp_json, indent=4)}")
-    name = f"{resp_json['name']} : {resp_json['leds']['count']}"
+    #name = f"{resp_json['name']} : {resp_json['leds']['count']}"
+    name = f"{resp_json['name']} \n{resp_json['arch']} - {resp_json['leds']['count']}px\n{resp_json['product']} - {resp_json['ver']}"
     return name
